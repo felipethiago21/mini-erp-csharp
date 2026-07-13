@@ -1,0 +1,14 @@
+C:\Users\fco_tf\Desktop\estudocsharp\minierp\bin\Debug\net10.0\MiniErp.exe
+C:\Users\fco_tf\Desktop\estudocsharp\minierp\bin\Debug\net10.0\MiniErp.deps.json
+C:\Users\fco_tf\Desktop\estudocsharp\minierp\bin\Debug\net10.0\MiniErp.runtimeconfig.json
+C:\Users\fco_tf\Desktop\estudocsharp\minierp\bin\Debug\net10.0\MiniErp.dll
+C:\Users\fco_tf\Desktop\estudocsharp\minierp\bin\Debug\net10.0\MiniErp.pdb
+C:\Users\fco_tf\Desktop\estudocsharp\minierp\obj\Debug\net10.0\MiniErp.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\fco_tf\Desktop\estudocsharp\minierp\obj\Debug\net10.0\MiniErp.AssemblyInfoInputs.cache
+C:\Users\fco_tf\Desktop\estudocsharp\minierp\obj\Debug\net10.0\MiniErp.AssemblyInfo.cs
+C:\Users\fco_tf\Desktop\estudocsharp\minierp\obj\Debug\net10.0\MiniErp.csproj.CoreCompileInputs.cache
+C:\Users\fco_tf\Desktop\estudocsharp\minierp\obj\Debug\net10.0\MiniErp.dll
+C:\Users\fco_tf\Desktop\estudocsharp\minierp\obj\Debug\net10.0\refint\MiniErp.dll
+C:\Users\fco_tf\Desktop\estudocsharp\minierp\obj\Debug\net10.0\MiniErp.pdb
+C:\Users\fco_tf\Desktop\estudocsharp\minierp\obj\Debug\net10.0\MiniErp.genruntimeconfig.cache
+C:\Users\fco_tf\Desktop\estudocsharp\minierp\obj\Debug\net10.0\ref\MiniErp.dll
