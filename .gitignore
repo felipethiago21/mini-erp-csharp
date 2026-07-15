@@ -30,3 +30,10 @@ publish/
 ## Logs e temporários
 *.log
 *.tmp
+
+## Frontend (MiniErp.Web)
+node_modules/
+dist/
+.env
+.env.local
+*.local

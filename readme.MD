@@ -1,6 +1,6 @@
 # 📦 Mini ERP em C#
 
-Projeto de estudos evoluído de um console app para uma **API REST em ASP.NET Core**, organizada em camadas, com Entity Framework Core, SQLite, testes automatizados e pronta para ser consumida por um frontend em React.
+Projeto de estudos evoluído de um console app para uma **API REST em ASP.NET Core**, organizada em camadas, com Entity Framework Core, SQLite, testes automatizados e um **frontend SPA em React + TypeScript** (`MiniErp.Web`).
 
 ---
 
@@ -23,13 +23,15 @@ Camadas inspiradas em Clean Architecture / Onion Architecture:
 - **MiniErp.Api** — ASP.NET Core Web API: controllers, middleware de exceções, Swagger, CORS e configuração de DI.
 - **MiniErp.Console** — aplicativo console original, agora consumindo as mesmas camadas de Application/Infrastructure via injeção de dependência (mantido como demonstração histórica).
 - **MiniErp.Tests** — testes xUnit dos services de Produto e Venda.
+- **MiniErp.Web** — SPA em React + TypeScript (Vite) que consome a API via HTTP, sem acoplamento a nenhuma camada .NET.
 
 Regra importante: os **controllers não contêm regra de negócio** — apenas orquestram DTOs e chamam os services da camada Application. As regras vivem nas entidades (`Domain`) e nos services (`Application`).
 
 ```mermaid
 graph TD
+    Web[MiniErp.Web - React SPA] -- HTTP/JSON --> Api[MiniErp.Api]
     Console[MiniErp.Console] --> Application
-    Api[MiniErp.Api] --> Application[MiniErp.Application]
+    Api --> Application[MiniErp.Application]
     Application --> Domain[MiniErp.Domain]
     Infrastructure[MiniErp.Infrastructure] --> Application
     Infrastructure --> Domain
@@ -43,12 +45,25 @@ graph TD
 
 ## 🚀 Tecnologias
 
+### Backend
 - C# / .NET 10
 - ASP.NET Core Web API
 - Entity Framework Core 10 + SQLite
 - FluentValidation
 - Swagger / Swashbuckle
 - xUnit
+
+### Frontend (`MiniErp.Web`)
+- React 19 + TypeScript
+- Vite
+- React Router
+- TanStack Query
+- Axios
+- Tailwind CSS v4
+- React Hook Form + Zod (`@hookform/resolvers`)
+- Recharts
+- Lucide React
+- Vitest + React Testing Library
 
 ---
 
@@ -74,7 +89,25 @@ minierp/
 │   │   ├── Controllers/
 │   │   ├── Middlewares/
 │   │   └── Program.cs
-│   └── MiniErp.Console/
+│   ├── MiniErp.Console/
+│   └── MiniErp.Web/              (SPA React + TypeScript)
+│       ├── .env.example
+│       ├── src/
+│       │   ├── api/              (client.ts, produtosApi, clientesApi, vendasApi, dashboardApi)
+│       │   ├── components/
+│       │   │   ├── layout/       (AppLayout, Sidebar, Header)
+│       │   │   ├── ui/           (Button, Input, Modal, ConfirmDialog, Pagination, ...)
+│       │   │   ├── feedback/     (LoadingSpinner, Skeleton, ErrorState, EmptyState)
+│       │   │   └── forms/        (ProdutoForm, ClienteForm, NovaVenda, ...)
+│       │   ├── pages/            (Dashboard, Produtos, Clientes, Vendas, NotFound)
+│       │   ├── hooks/
+│       │   ├── schemas/          (validação Zod)
+│       │   ├── types/            (contratos TypeScript espelhando os DTOs da API)
+│       │   ├── utils/            (formatação pt-BR, extração de erros)
+│       │   ├── routes/
+│       │   ├── App.tsx
+│       │   └── main.tsx
+│       └── README.md
 └── tests/
     └── MiniErp.Tests/
 ```
@@ -118,6 +151,66 @@ dotnet run --project src/MiniErp.Console
 
 ---
 
+## 💻 Frontend (MiniErp.Web)
+
+O frontend é uma SPA independente que consome a API via HTTP — veja detalhes completos em [`src/MiniErp.Web/README.md`](src/MiniErp.Web/README.md).
+
+### Configurar o `.env`
+
+```bash
+cd src/MiniErp.Web
+cp .env.example .env
+```
+
+O `.env` define a URL da API consumida pelo frontend:
+
+```
+VITE_API_URL=http://localhost:5192/api
+```
+
+> Ajuste a porta conforme o perfil usado em `dotnet run` (veja `src/MiniErp.Api/Properties/launchSettings.json` — perfil `http` roda em `5192`, `https` em `7110`).
+
+### Executar API e frontend juntos
+
+**Terminal 1 — API:**
+
+```bash
+dotnet run --project src/MiniErp.Api
+```
+
+**Terminal 2 — Frontend:**
+
+```bash
+cd src/MiniErp.Web
+npm install
+npm run dev
+```
+
+A aplicação abre em `http://localhost:5173` (origem já liberada no CORS da API).
+
+### Telas implementadas
+
+- **Dashboard** — cards de totais (produtos, clientes, vendas, faturamento, estoque baixo), gráfico de produtos com menor estoque (Recharts), lista de vendas recentes, com loading skeleton, estado de erro (com "tentar novamente") e estado vazio.
+- **Produtos** — tabela paginada com busca (debounce), cadastro, edição, exclusão (com confirmação), entrada/saída de estoque, destaque visual para estoque baixo.
+- **Clientes** — tabela paginada com busca, cadastro, edição e exclusão via modal.
+- **Vendas** — aba de histórico (lista + detalhe de itens) e aba de nova venda (seleção de cliente e produtos, carrinho com quantidades, validação de estoque no frontend, confirmação antes de finalizar).
+
+### Comandos do frontend
+
+```bash
+npm run dev       # ambiente de desenvolvimento
+npm run build     # build de produção (tsc -b && vite build)
+npm run lint      # oxlint
+npm run test      # vitest
+npm run preview   # preview do build de produção
+```
+
+### Screenshots
+
+_Pendente — adicionar capturas de tela das telas de Dashboard, Produtos, Clientes e Vendas._
+
+---
+
 ## 🔌 Endpoints principais
 
 ### Produtos
@@ -152,11 +245,13 @@ Middleware global (`ExceptionHandlingMiddleware`) padroniza as respostas de erro
 
 ```json
 {
-  "status": 409,
-  "erro": "Estoque insuficiente para o produto 'Arroz'.",
-  "detalhes": null
+  "Status": 409,
+  "Erro": "Estoque insuficiente para o produto 'Arroz'.",
+  "Detalhes": null
 }
 ```
+
+> **Nota:** diferente dos demais endpoints (que usam `camelCase` via o serializador padrão do ASP.NET Core), o corpo de erro é serializado manualmente com `JsonSerializer.Serialize` sem `JsonSerializerOptions`, resultando em `PascalCase` (`Status`/`Erro`/`Detalhes`). É uma inconsistência observada no middleware atual — o frontend (`MiniErp.Web`) já trata esse formato corretamente, mas vale avaliar padronizar para `camelCase` em uma próxima iteração do backend.
 
 - `400` — dados inválidos (FluentValidation ou regras de validação simples)
 - `404` — recurso não encontrado
@@ -176,14 +271,15 @@ Middleware global (`ExceptionHandlingMiddleware`) padroniza as respostas de erro
 
 ---
 
-## 🗺️ Roadmap do frontend React
+## 🗺️ Roadmap
 
-- [ ] Criar SPA em React + Vite consumindo a API (`http://localhost:5173` já liberado no CORS)
-- [ ] Tela de produtos (listagem paginada, cadastro, edição, movimentação de estoque)
-- [ ] Tela de clientes (listagem paginada, cadastro, edição)
-- [ ] Tela de vendas (carrinho com múltiplos itens, confirmação)
-- [ ] Dashboard com os indicadores de `GET /api/dashboard/resumo`
+- [x] SPA em React + Vite consumindo a API (`MiniErp.Web`)
+- [x] Tela de produtos (listagem paginada, cadastro, edição, movimentação de estoque)
+- [x] Tela de clientes (listagem paginada, cadastro, edição)
+- [x] Tela de vendas (carrinho com múltiplos itens, confirmação)
+- [x] Dashboard com os indicadores de `GET /api/dashboard/resumo`
 - [ ] Autenticação (etapa futura)
+- [ ] Screenshots das telas no README
 
 ---
 
