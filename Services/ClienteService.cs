@@ -1,11 +1,16 @@
+using MiniErp.Data;
 using MiniErp.Models;
 
 namespace MiniErp.Services;
 
 public class ClienteService
 {
-    private readonly List<Cliente> _clientes = [];
-    private int _proximoId = 1;
+    private readonly MiniErpContext _context;
+
+    public ClienteService(MiniErpContext context)
+    {
+        _context = context;
+    }
 
     public Cliente Cadastrar(string nome, string email)
     {
@@ -17,23 +22,23 @@ public class ClienteService
 
         var cliente = new Cliente
         {
-            Id = _proximoId++,
             Nome = nome,
             Email = email
         };
 
-        _clientes.Add(cliente);
+        _context.Clientes.Add(cliente);
+        _context.SaveChanges();
 
         return cliente;
     }
 
     public List<Cliente> Listar()
     {
-        return _clientes;
+        return _context.Clientes.ToList();
     }
 
     public Cliente? BuscarPorId(int id)
     {
-        return _clientes.FirstOrDefault(cliente => cliente.Id == id);
+        return _context.Clientes.FirstOrDefault(cliente => cliente.Id == id);
     }
 }

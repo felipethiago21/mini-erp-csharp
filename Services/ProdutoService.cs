@@ -1,11 +1,18 @@
+using MiniErp.Data;
 using MiniErp.Models;
 
 namespace MiniErp.Services;
 
 public class ProdutoService
 {
-    private readonly List<Produto> _produtos = [];
-    private int _proximoId = 1;
+    // Representa o acesso ao banco de dados.
+    private readonly MiniErpContext _context;
+
+    // Recebe o contexto criado no Program.cs.
+    public ProdutoService(MiniErpContext context)
+    {
+        _context = context;
+    }
 
     public Produto Cadastrar(string nome, decimal preco, int estoqueInicial)
     {
@@ -20,25 +27,30 @@ public class ProdutoService
 
         var produto = new Produto
         {
-            Id = _proximoId++,
             Nome = nome,
             Preco = preco,
             QuantidadeEstoque = estoqueInicial
         };
 
-        _produtos.Add(produto);
+        // Prepara o INSERT.
+        _context.Produtos.Add(produto);
+
+        // Executa o INSERT no SQLite.
+        _context.SaveChanges();
 
         return produto;
     }
 
     public List<Produto> Listar()
     {
-        return _produtos;
+        // SELECT de todos os produtos.
+        return _context.Produtos.ToList();
     }
 
     public Produto? BuscarPorId(int id)
     {
-        return _produtos.FirstOrDefault(produto => produto.Id == id);
+        // SELECT procurando o primeiro produto com o ID informado.
+        return _context.Produtos.FirstOrDefault(produto => produto.Id == id);
     }
 
     public void AdicionarEstoque(int id, int quantidade)
@@ -49,6 +61,9 @@ public class ProdutoService
             throw new InvalidOperationException("Produto não encontrado.");
 
         produto.AdicionarEstoque(quantidade);
+
+        // Executa o UPDATE no banco.
+        _context.SaveChanges();
     }
 
     public void RemoverEstoque(int id, int quantidade)
@@ -59,6 +74,8 @@ public class ProdutoService
             throw new InvalidOperationException("Produto não encontrado.");
 
         produto.RemoverEstoque(quantidade);
+
+        _context.SaveChanges();
     }
 
     public void Excluir(int id)
@@ -68,6 +85,10 @@ public class ProdutoService
         if (produto == null)
             throw new InvalidOperationException("Produto não encontrado.");
 
-        _produtos.Remove(produto);
+        // Prepara o DELETE.
+        _context.Produtos.Remove(produto);
+
+        // Executa o DELETE.
+        _context.SaveChanges();
     }
 }

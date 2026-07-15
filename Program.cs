@@ -1,8 +1,11 @@
-﻿using MiniErp.Services;
+﻿using MiniErp.Data;
+using MiniErp.Services;
 
-var produtoService = new ProdutoService();
-var clienteService = new ClienteService();
-var vendaService = new VendaService();
+using var context = new MiniErpContext();
+
+var produtoService = new ProdutoService(context);
+var clienteService = new ClienteService(context);
+var vendaService = new VendaService(context);
 
 bool executando = true;
 

@@ -1,11 +1,17 @@
+using Microsoft.EntityFrameworkCore;
+using MiniErp.Data;
 using MiniErp.Models;
 
 namespace MiniErp.Services;
 
 public class VendaService
 {
-    private readonly List<Venda> _vendas = [];
-    private int _proximoId = 1;
+    private readonly MiniErpContext _context;
+
+    public VendaService(MiniErpContext context)
+    {
+        _context = context;
+    }
 
     public Venda Registrar(
         Cliente cliente,
@@ -18,29 +24,48 @@ public class VendaService
         if (!produto.TemEstoque(quantidade))
             throw new InvalidOperationException("Estoque insuficiente.");
 
+        // Dá baixa no estoque
         produto.RemoverEstoque(quantidade);
 
-        var item = new ItemVenda
-        {
-            Produto = produto,
-            Quantidade = quantidade
-        };
+       var item = new ItemVenda
+            {
+                ProdutoId = produto.Id,
+                Produto = produto,
+                Quantidade = quantidade,
+                PrecoUnitario = produto.Preco
+            };
 
         var venda = new Venda
-        {
-            Id = _proximoId++,
-            Cliente = cliente,
-            Data = DateTime.Now,
-            Itens = [item]
-        };
+            {
+                ClienteId = cliente.Id,
+                Cliente = cliente,
+                Data = DateTime.Now,
+                Itens = [item]
+            };
 
-        _vendas.Add(venda);
+        _context.Vendas.Add(venda);
+
+        // Salva a venda, item da venda e atualização do estoque
+        _context.SaveChanges();
 
         return venda;
     }
 
     public List<Venda> Listar()
     {
-        return _vendas;
+        return _context.Vendas
+            .Include(v => v.Cliente)
+            .Include(v => v.Itens)
+                .ThenInclude(i => i.Produto)
+            .ToList();
+    }
+
+    public Venda? BuscarPorId(int id)
+    {
+        return _context.Vendas
+            .Include(v => v.Cliente)
+            .Include(v => v.Itens)
+                .ThenInclude(i => i.Produto)
+            .FirstOrDefault(v => v.Id == id);
     }
 }

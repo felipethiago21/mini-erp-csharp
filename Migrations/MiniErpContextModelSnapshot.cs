@@ -42,13 +42,16 @@ namespace MiniErp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<decimal>("PrecoUnitario")
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("ProdutoId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("Quantidade")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("VendaId")
+                    b.Property<int>("VendaId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
@@ -108,11 +111,15 @@ namespace MiniErp.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MiniErp.Models.Venda", null)
+                    b.HasOne("MiniErp.Models.Venda", "Venda")
                         .WithMany("Itens")
-                        .HasForeignKey("VendaId");
+                        .HasForeignKey("VendaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Produto");
+
+                    b.Navigation("Venda");
                 });
 
             modelBuilder.Entity("MiniErp.Models.Venda", b =>
