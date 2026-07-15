@@ -1,0 +1,32 @@
+## .NET
+bin/
+obj/
+out/
+
+## Testes
+[Tt]est[Rr]esult*/
+*.trx
+*.coverage
+*.coveragexml
+
+## Banco de dados local (recriar via migrations, ver README)
+*.db
+*.db-shm
+*.db-wal
+
+## Visual Studio / Rider / VS Code
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.idea/
+
+## Publicação
+publish/
+*.pubxml
+
+## Logs e temporários
+*.log
+*.tmp

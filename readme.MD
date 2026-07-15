@@ -1,152 +1,189 @@
-```markdown
 # 📦 Mini ERP em C#
 
-Projeto desenvolvido com o objetivo de aperfeiçoar **C#**, **Programação Orientada a Objetos (POO)** e, futuramente, **ASP.NET Core**, **Entity Framework**, **SQL Server** e **React**.
-
-O projeto será construído de forma incremental, simulando o desenvolvimento de um sistema real utilizado por empresas.
+Projeto de estudos evoluído de um console app para uma **API REST em ASP.NET Core**, organizada em camadas, com Entity Framework Core, SQLite, testes automatizados e pronta para ser consumida por um frontend em React.
 
 ---
 
 ## 🎯 Objetivos
 
-- Aprender C# na prática.
-- Dominar os fundamentos da Programação Orientada a Objetos.
-- Construir uma API REST utilizando ASP.NET Core.
-- Integrar um frontend em React.
-- Aplicar boas práticas de arquitetura e desenvolvimento.
+- Praticar C#, POO e arquitetura em camadas.
+- Construir uma API REST profissional com ASP.NET Core.
+- Aplicar Repository Pattern, injeção de dependência, DTOs e validação.
+- Preparar o backend para consumo por um frontend React (próxima sprint).
+
+---
+
+## 🏗️ Arquitetura
+
+Camadas inspiradas em Clean Architecture / Onion Architecture:
+
+- **MiniErp.Domain** — entidades e regras de negócio intrínsecas (`Produto`, `Cliente`, `Venda`, `ItemVenda`).
+- **MiniErp.Application** — casos de uso: DTOs, interfaces (repositórios, unit of work, services), services, validators (FluentValidation) e exceptions de negócio.
+- **MiniErp.Infrastructure** — Entity Framework Core (`MiniErpContext`), implementação dos repositórios, `UnitOfWork` e migrations.
+- **MiniErp.Api** — ASP.NET Core Web API: controllers, middleware de exceções, Swagger, CORS e configuração de DI.
+- **MiniErp.Console** — aplicativo console original, agora consumindo as mesmas camadas de Application/Infrastructure via injeção de dependência (mantido como demonstração histórica).
+- **MiniErp.Tests** — testes xUnit dos services de Produto e Venda.
+
+Regra importante: os **controllers não contêm regra de negócio** — apenas orquestram DTOs e chamam os services da camada Application. As regras vivem nas entidades (`Domain`) e nos services (`Application`).
+
+```mermaid
+graph TD
+    Console[MiniErp.Console] --> Application
+    Api[MiniErp.Api] --> Application[MiniErp.Application]
+    Application --> Domain[MiniErp.Domain]
+    Infrastructure[MiniErp.Infrastructure] --> Application
+    Infrastructure --> Domain
+    Api --> Infrastructure
+    Console --> Infrastructure
+    Tests[MiniErp.Tests] --> Application
+    Tests --> Infrastructure
+```
 
 ---
 
 ## 🚀 Tecnologias
 
-### Backend
-- C#
-- .NET
-- ASP.NET Core *(em desenvolvimento)*
-- Entity Framework Core *(planejado)*
-
-### Banco de Dados
-- SQLite *(primeira etapa)*
-- SQL Server *(etapa futura)*
-
-### Frontend
-- React *(planejado)*
-
-### Ferramentas
-- Git
-- GitHub
-- Visual Studio Code
+- C# / .NET 10
+- ASP.NET Core Web API
+- Entity Framework Core 10 + SQLite
+- FluentValidation
+- Swagger / Swashbuckle
+- xUnit
 
 ---
 
-## 📚 Roadmap
-
-### ✅ Sprint 1
-- [x] Criação do projeto Console
-- [x] Classe `Produto`
-- [x] `ProdutoService`
-- [x] Cadastro de produto
-- [x] Entrada de dados via terminal
-- [x] Exibição dos dados cadastrados
-
-### 🔜 Sprint 2
-- [ ] Menu interativo
-- [ ] Cadastro de múltiplos produtos
-- [ ] Listagem de produtos
-
-### 🔜 Sprint 3
-- [ ] Cadastro de clientes
-
-### 🔜 Sprint 4
-- [ ] Cadastro de vendas
-- [ ] Baixa automática de estoque
-
-### 🔜 Sprint 5
-- [ ] Persistência com SQLite
-- [ ] Entity Framework Core
-
-### 🔜 Sprint 6
-- [ ] API REST com ASP.NET Core
-
-### 🔜 Sprint 7
-- [ ] Autenticação JWT
-
-### 🔜 Sprint 8
-- [ ] Docker
-
-### 🔜 Sprint 9
-- [ ] Frontend React
-
----
-
-## 📂 Estrutura Atual
+## 📂 Estrutura de pastas
 
 ```
-
-MiniErp/
-│
-├── Models/
-│   └── Produto.cs
-│
-├── Services/
-│   └── ProdutoService.cs
-│
-├── Program.cs
-│
-└── MiniErp.csproj
-
-````
-
----
-
-## 💡 Conceitos estudados
-
-Até o momento foram praticados:
-
-- Classes
-- Objetos
-- Métodos
-- Propriedades
-- Namespaces
-- Instanciação de objetos
-- Serviços
-- Listas (`List<T>`)
-- Conversão de tipos (`Parse`)
-- Interpolação de strings
-- Formatação de moeda
-- Organização de código
+minierp/
+├── MiniErp.sln
+├── src/
+│   ├── MiniErp.Domain/
+│   │   └── Entities/            (Produto, Cliente, Venda, ItemVenda)
+│   ├── MiniErp.Application/
+│   │   ├── DTOs/                (Produtos, Clientes, Vendas, Dashboard, Common)
+│   │   ├── Interfaces/          (Repositories, UnitOfWork, Services)
+│   │   ├── Services/
+│   │   ├── Validators/
+│   │   └── Exceptions/
+│   ├── MiniErp.Infrastructure/
+│   │   ├── Persistence/         (MiniErpContext, UnitOfWork)
+│   │   ├── Repositories/
+│   │   └── Migrations/
+│   ├── MiniErp.Api/
+│   │   ├── Controllers/
+│   │   ├── Middlewares/
+│   │   └── Program.cs
+│   └── MiniErp.Console/
+└── tests/
+    └── MiniErp.Tests/
+```
 
 ---
 
 ## ▶️ Como executar
 
-Clone o repositório:
+### Restaurar e compilar
 
 ```bash
-git clone https://github.com/SEU_USUARIO/mini-erp-csharp.git
-````
-
-Entre na pasta:
-
-```bash
-cd mini-erp-csharp
+dotnet restore
+dotnet build
 ```
 
-Execute o projeto:
+### Rodar os testes
 
 ```bash
-dotnet run
+dotnet test
+```
+
+### Criar/atualizar o banco SQLite
+
+```bash
+dotnet ef database update --project src/MiniErp.Infrastructure --startup-project src/MiniErp.Api
+```
+
+### Executar a API
+
+```bash
+dotnet run --project src/MiniErp.Api
+```
+
+Abra o Swagger em `http://localhost:<porta>/swagger`.
+
+### Executar o console (opcional)
+
+```bash
+dotnet run --project src/MiniErp.Console
 ```
 
 ---
 
-## 📖 Sobre o projeto
+## 🔌 Endpoints principais
 
-Este projeto faz parte da minha jornada de estudos em C#.
+### Produtos
+- `GET /api/produtos?page=1&pageSize=10&busca=arroz`
+- `GET /api/produtos/{id}`
+- `POST /api/produtos`
+- `PUT /api/produtos/{id}`
+- `DELETE /api/produtos/{id}`
+- `POST /api/produtos/{id}/entrada-estoque`
+- `POST /api/produtos/{id}/saida-estoque`
 
-A proposta não é apenas concluir um sistema, mas compreender profundamente os conceitos da linguagem, evoluindo o projeto de um simples aplicativo de console até uma aplicação completa com backend, banco de dados e frontend.
+### Clientes
+- `GET /api/clientes?page=1&pageSize=10&busca=felipe`
+- `GET /api/clientes/{id}`
+- `POST /api/clientes`
+- `PUT /api/clientes/{id}`
+- `DELETE /api/clientes/{id}`
 
-Cada funcionalidade será desenvolvida passo a passo, priorizando o entendimento da lógica e das boas práticas de desenvolvimento.
+### Vendas
+- `GET /api/vendas`
+- `GET /api/vendas/{id}`
+- `POST /api/vendas` — aceita múltiplos itens, valida estoque e cliente, e executa tudo em uma transação (rollback total se algo falhar).
+
+### Dashboard
+- `GET /api/dashboard/resumo` — totais de produtos/clientes/vendas, faturamento, produtos com estoque baixo (≤ 5) e vendas recentes.
+
+---
+
+## ✅ Tratamento de erros
+
+Middleware global (`ExceptionHandlingMiddleware`) padroniza as respostas de erro:
+
+```json
+{
+  "status": 409,
+  "erro": "Estoque insuficiente para o produto 'Arroz'.",
+  "detalhes": null
+}
+```
+
+- `400` — dados inválidos (FluentValidation ou regras de validação simples)
+- `404` — recurso não encontrado
+- `409` — conflito de regra de negócio (ex.: estoque insuficiente)
+- `500` — erro inesperado
+
+---
+
+## 🧪 Testes automatizados
+
+- Cadastro de produto
+- Movimentação de estoque com quantidade inválida
+- Venda com estoque suficiente (reduz o estoque corretamente)
+- Venda com estoque insuficiente (não altera o estoque)
+- Rollback de venda quando um item falha (nenhum item é persistido, estoque não é alterado)
+- Venda com cliente inexistente
+
+---
+
+## 🗺️ Roadmap do frontend React
+
+- [ ] Criar SPA em React + Vite consumindo a API (`http://localhost:5173` já liberado no CORS)
+- [ ] Tela de produtos (listagem paginada, cadastro, edição, movimentação de estoque)
+- [ ] Tela de clientes (listagem paginada, cadastro, edição)
+- [ ] Tela de vendas (carrinho com múltiplos itens, confirmação)
+- [ ] Dashboard com os indicadores de `GET /api/dashboard/resumo`
+- [ ] Autenticação (etapa futura)
 
 ---
 
@@ -155,6 +192,3 @@ Cada funcionalidade será desenvolvida passo a passo, priorizando o entendimento
 **Felipe Thiago**
 
 Analista de Sistemas | Full Stack Developer | Software Engineer
-
-```
-```
