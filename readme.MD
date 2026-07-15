@@ -223,7 +223,17 @@ npm run preview   # preview do build de produção
 
 ### Screenshots
 
-_Pendente: adicionar capturas de tela das telas de Dashboard, Produtos, Clientes e Vendas._
+**Dashboard**
+![Dashboard](docs/images/dashboard.png)
+
+**Produtos**
+![Produtos](docs/images/produtos.png)
+
+**Clientes**
+![Clientes](docs/images/clientes.jpg)
+
+**Vendas**
+![Vendas](docs/images/vendas.jpg)
 
 ---
 
@@ -351,7 +361,7 @@ Middleware global (`ExceptionHandlingMiddleware`) padroniza as respostas de erro
 - [x] Tela de vendas (carrinho com múltiplos itens, confirmação)
 - [x] Dashboard com os indicadores de `GET /api/dashboard/resumo`
 - [ ] Autenticação (etapa futura)
-- [ ] Screenshots das telas no README
+- [x] Screenshots das telas no README
 
 ---
 
