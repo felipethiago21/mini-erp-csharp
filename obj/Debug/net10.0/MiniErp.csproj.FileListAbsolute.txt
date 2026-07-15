@@ -12,3 +12,4 @@ C:\Users\fco_tf\Desktop\estudocsharp\minierp\obj\Debug\net10.0\refint\MiniErp.dl
 C:\Users\fco_tf\Desktop\estudocsharp\minierp\obj\Debug\net10.0\MiniErp.pdb
 C:\Users\fco_tf\Desktop\estudocsharp\minierp\obj\Debug\net10.0\MiniErp.genruntimeconfig.cache
 C:\Users\fco_tf\Desktop\estudocsharp\minierp\obj\Debug\net10.0\ref\MiniErp.dll
+C:\Users\fco_tf\Desktop\estudocsharp\minierp\obj\Debug\net10.0\MiniErp.sourcelink.json
