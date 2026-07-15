@@ -259,7 +259,7 @@ export function ProdutosPage() {
 
       {modal?.tipo === 'entrada' ? (
         <Modal
-          title={`Entrada de estoque — ${modal.produto.nome}`}
+          title={`Entrada de estoque: ${modal.produto.nome}`}
           isOpen
           onClose={() => setModal(null)}
           preventClose={entradaMutation.isPending}
@@ -275,7 +275,7 @@ export function ProdutosPage() {
 
       {modal?.tipo === 'saida' ? (
         <Modal
-          title={`Saída de estoque — ${modal.produto.nome}`}
+          title={`Saída de estoque: ${modal.produto.nome}`}
           isOpen
           onClose={() => setModal(null)}
           preventClose={saidaMutation.isPending}

@@ -17,15 +17,15 @@ Projeto de estudos evoluído de um console app para uma **API REST em ASP.NET Co
 
 Camadas inspiradas em Clean Architecture / Onion Architecture:
 
-- **MiniErp.Domain** — entidades e regras de negócio intrínsecas (`Produto`, `Cliente`, `Venda`, `ItemVenda`).
-- **MiniErp.Application** — casos de uso: DTOs, interfaces (repositórios, unit of work, services), services, validators (FluentValidation) e exceptions de negócio.
-- **MiniErp.Infrastructure** — Entity Framework Core (`MiniErpContext`), implementação dos repositórios, `UnitOfWork` e migrations.
-- **MiniErp.Api** — ASP.NET Core Web API: controllers, middleware de exceções, Swagger, CORS e configuração de DI.
-- **MiniErp.Console** — aplicativo console original, agora consumindo as mesmas camadas de Application/Infrastructure via injeção de dependência (mantido como demonstração histórica).
-- **MiniErp.Tests** — testes xUnit dos services de Produto e Venda.
-- **MiniErp.Web** — SPA em React + TypeScript (Vite) que consome a API via HTTP, sem acoplamento a nenhuma camada .NET.
+- **MiniErp.Domain**: entidades e regras de negócio intrínsecas (`Produto`, `Cliente`, `Venda`, `ItemVenda`).
+- **MiniErp.Application**: casos de uso: DTOs, interfaces (repositórios, unit of work, services), services, validators (FluentValidation) e exceptions de negócio.
+- **MiniErp.Infrastructure**: Entity Framework Core (`MiniErpContext`), implementação dos repositórios, `UnitOfWork` e migrations.
+- **MiniErp.Api**: ASP.NET Core Web API: controllers, middleware de exceções, Swagger, CORS e configuração de DI.
+- **MiniErp.Console**: aplicativo console original, agora consumindo as mesmas camadas de Application/Infrastructure via injeção de dependência (mantido como demonstração histórica).
+- **MiniErp.Tests**: testes xUnit dos services de Produto e Venda.
+- **MiniErp.Web**: SPA em React + TypeScript (Vite) que consome a API via HTTP, sem acoplamento a nenhuma camada .NET.
 
-Regra importante: os **controllers não contêm regra de negócio** — apenas orquestram DTOs e chamam os services da camada Application. As regras vivem nas entidades (`Domain`) e nos services (`Application`).
+Regra importante: os **controllers não contêm regra de negócio**, apenas orquestram DTOs e chamam os services da camada Application. As regras vivem nas entidades (`Domain`) e nos services (`Application`).
 
 ```mermaid
 graph TD
@@ -161,7 +161,7 @@ dotnet run --project src/MiniErp.Console
 
 ## 💻 Frontend (MiniErp.Web)
 
-O frontend é uma SPA independente que consome a API via HTTP — veja detalhes completos em [`src/MiniErp.Web/README.md`](src/MiniErp.Web/README.md).
+O frontend é uma SPA independente que consome a API via HTTP. Veja detalhes completos em [`src/MiniErp.Web/README.md`](src/MiniErp.Web/README.md).
 
 ### Configurar o `.env`
 
@@ -176,17 +176,17 @@ O `.env` define a URL da API consumida pelo frontend:
 VITE_API_URL=http://localhost:5192/api
 ```
 
-> Ajuste a porta conforme o perfil usado em `dotnet run` (veja `src/MiniErp.Api/Properties/launchSettings.json` — perfil `http` roda em `5192`, `https` em `7110`).
+> Ajuste a porta conforme o perfil usado em `dotnet run` (veja `src/MiniErp.Api/Properties/launchSettings.json`: perfil `http` roda em `5192`, `https` em `7110`).
 
 ### Executar API e frontend juntos
 
-**Terminal 1 — API:**
+**Terminal 1: API**
 
 ```bash
 dotnet run --project src/MiniErp.Api
 ```
 
-**Terminal 2 — Frontend:**
+**Terminal 2: Frontend**
 
 ```bash
 cd src/MiniErp.Web
@@ -198,10 +198,10 @@ A aplicação abre em `http://localhost:5173` (origem já liberada no CORS da AP
 
 ### Telas implementadas
 
-- **Dashboard** — cards de totais (produtos, clientes, vendas, faturamento, estoque baixo), gráfico de produtos com menor estoque (Recharts), lista de vendas recentes, com loading skeleton, estado de erro (com "tentar novamente") e estado vazio.
-- **Produtos** — tabela paginada com busca (debounce), cadastro, edição, exclusão (com confirmação), entrada/saída de estoque, badges de estoque em 3 níveis (zerado, baixo, normal).
-- **Clientes** — tabela paginada com busca, cadastro, edição e exclusão via modal.
-- **Vendas** — aba de histórico (lista + detalhe de itens) e aba de nova venda (seleção de cliente e produtos, carrinho com quantidades, validação de estoque no frontend, confirmação antes de finalizar).
+- **Dashboard**: cards de totais (produtos, clientes, vendas, faturamento, estoque baixo), gráfico de produtos com menor estoque (Recharts), lista de vendas recentes, com loading skeleton, estado de erro (com "tentar novamente") e estado vazio.
+- **Produtos**: tabela paginada com busca (debounce), cadastro, edição, exclusão (com confirmação), entrada/saída de estoque, badges de estoque em 3 níveis (zerado, baixo, normal).
+- **Clientes**: tabela paginada com busca, cadastro, edição e exclusão via modal.
+- **Vendas**: aba de histórico (lista + detalhe de itens) e aba de nova venda (seleção de cliente e produtos, carrinho com quantidades, validação de estoque no frontend, confirmação antes de finalizar).
 
 ### UX
 
@@ -223,7 +223,7 @@ npm run preview   # preview do build de produção
 
 ### Screenshots
 
-_Pendente — adicionar capturas de tela das telas de Dashboard, Produtos, Clientes e Vendas._
+_Pendente: adicionar capturas de tela das telas de Dashboard, Produtos, Clientes e Vendas._
 
 ---
 
@@ -245,8 +245,8 @@ docker compose up --build
 
 Isso constrói duas imagens e sobe dois containers:
 
-- **`minierp-api`** — API ASP.NET Core publicada em modo Release, escutando na porta interna `8080`.
-- **`minierp-web`** — build de produção do frontend (Vite) servido por Nginx na porta interna `80`.
+- **`minierp-api`**: API ASP.NET Core publicada em modo Release, escutando na porta interna `8080`.
+- **`minierp-web`**: build de produção do frontend (Vite) servido por Nginx na porta interna `80`.
 
 ### Portas
 
@@ -255,11 +255,11 @@ Isso constrói duas imagens e sobe dois containers:
 | API     | `http://localhost:5192`    | `8080`                       |
 | Web     | `http://localhost:5173`    | `80`                         |
 
-O frontend é compilado no build da imagem já apontando para `http://localhost:5192/api` (variável `VITE_API_URL`, injetada como build arg no `docker-compose.yml`) — como o Vite resolve `import.meta.env` em tempo de build, essa URL fica fixa no bundle estático servido pelo Nginx.
+O frontend é compilado no build da imagem já apontando para `http://localhost:5192/api` (variável `VITE_API_URL`, injetada como build arg no `docker-compose.yml`). Como o Vite resolve `import.meta.env` em tempo de build, essa URL fica fixa no bundle estático servido pelo Nginx.
 
 ### Persistência do banco SQLite
 
-O container da API monta um volume nomeado do Docker (`minierp-db`) em `/app/data`, e a connection string aponta para `/app/data/minierp.db` dentro desse volume. Isso significa que o banco **sobrevive** a `docker compose down` e a recriações do container — só é apagado com `docker compose down -v`.
+O container da API monta um volume nomeado do Docker (`minierp-db`) em `/app/data`, e a connection string aponta para `/app/data/minierp.db` dentro desse volume. Isso significa que o banco **sobrevive** a `docker compose down` e a recriações do container, só sendo apagado com `docker compose down -v`.
 
 Ao iniciar, a API aplica automaticamente as migrations pendentes (`context.Database.Migrate()` em `Program.cs`), então não é necessário rodar `dotnet ef database update` manualmente no fluxo Docker.
 
@@ -304,10 +304,10 @@ docker compose config
 ### Vendas
 - `GET /api/vendas`
 - `GET /api/vendas/{id}`
-- `POST /api/vendas` — aceita múltiplos itens, valida estoque e cliente, e executa tudo em uma transação (rollback total se algo falhar).
+- `POST /api/vendas`: aceita múltiplos itens, valida estoque e cliente, e executa tudo em uma transação (rollback total se algo falhar).
 
 ### Dashboard
-- `GET /api/dashboard/resumo` — totais de produtos/clientes/vendas, faturamento, produtos com estoque baixo (≤ 5) e vendas recentes.
+- `GET /api/dashboard/resumo`: totais de produtos/clientes/vendas, faturamento, produtos com estoque baixo (≤ 5) e vendas recentes.
 
 ---
 
@@ -323,12 +323,12 @@ Middleware global (`ExceptionHandlingMiddleware`) padroniza as respostas de erro
 }
 ```
 
-> **Nota:** diferente dos demais endpoints (que usam `camelCase` via o serializador padrão do ASP.NET Core), o corpo de erro é serializado manualmente com `JsonSerializer.Serialize` sem `JsonSerializerOptions`, resultando em `PascalCase` (`Status`/`Erro`/`Detalhes`). É uma inconsistência observada no middleware atual — o frontend (`MiniErp.Web`) já trata esse formato corretamente, mas vale avaliar padronizar para `camelCase` em uma próxima iteração do backend.
+> **Nota:** diferente dos demais endpoints (que usam `camelCase` via o serializador padrão do ASP.NET Core), o corpo de erro é serializado manualmente com `JsonSerializer.Serialize` sem `JsonSerializerOptions`, resultando em `PascalCase` (`Status`/`Erro`/`Detalhes`). É uma inconsistência observada no middleware atual. O frontend (`MiniErp.Web`) já trata esse formato corretamente, mas vale avaliar padronizar para `camelCase` em uma próxima iteração do backend.
 
-- `400` — dados inválidos (FluentValidation ou regras de validação simples)
-- `404` — recurso não encontrado
-- `409` — conflito de regra de negócio (ex.: estoque insuficiente)
-- `500` — erro inesperado
+- `400`: dados inválidos (FluentValidation ou regras de validação simples)
+- `404`: recurso não encontrado
+- `409`: conflito de regra de negócio (ex.: estoque insuficiente)
+- `500`: erro inesperado
 
 ---
 

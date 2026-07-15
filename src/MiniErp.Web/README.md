@@ -56,7 +56,7 @@ Veja a seção "Executando com Docker" no [README raiz do projeto](../../readme.
 docker compose up --build
 ```
 
-Frontend em `http://localhost:5173`, API em `http://localhost:5192`. O `VITE_API_URL` usado no build da imagem é passado como build arg pelo `docker-compose.yml` — como o Vite resolve variáveis de ambiente em tempo de build, não é possível trocar a URL da API em runtime sem reconstruir a imagem.
+Frontend em `http://localhost:5173`, API em `http://localhost:5192`. O `VITE_API_URL` usado no build da imagem é passado como build arg pelo `docker-compose.yml`: como o Vite resolve variáveis de ambiente em tempo de build, não é possível trocar a URL da API em runtime sem reconstruir a imagem.
 
 ## Scripts
 
@@ -90,11 +90,11 @@ src/
 
 ## Integração com a API
 
-Todos os contratos (`types/`) foram extraídos diretamente dos DTOs em `MiniErp.Application/DTOs` — nenhuma propriedade foi inventada. Pontos relevantes:
+Todos os contratos (`types/`) foram extraídos diretamente dos DTOs em `MiniErp.Application/DTOs`: nenhuma propriedade foi inventada. Pontos relevantes:
 
 - Respostas da API usam `camelCase` (serializador padrão do ASP.NET Core), exceto o corpo de erro do middleware global, que é serializado manualmente e retorna `PascalCase` (`Status`, `Erro`, `Detalhes`). O interceptor em `api/client.ts` já trata esse formato específico.
 - Paginação: a query string usa `page`/`pageSize`/`busca`, mas a resposta traz `itens`/`pagina`/`tamanhoPagina`/`totalItens`/`totalPaginas`.
-- `GET /api/vendas` não é paginado — retorna a lista completa.
+- `GET /api/vendas` não é paginado: retorna a lista completa.
 
 ## Testes
 
