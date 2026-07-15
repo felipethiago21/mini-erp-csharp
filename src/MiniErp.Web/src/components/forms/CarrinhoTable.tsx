@@ -10,12 +10,16 @@ interface CarrinhoTableProps {
 
 export function CarrinhoTable({ itens, onAtualizarQuantidade, onRemover }: CarrinhoTableProps) {
   if (itens.length === 0) {
-    return <p className="rounded-md border border-dashed border-slate-300 px-4 py-6 text-center text-sm text-slate-500">Nenhum item adicionado.</p>
+    return (
+      <p className="rounded-md border border-dashed border-slate-300 px-4 py-6 text-center text-sm text-slate-500 dark:border-slate-600 dark:text-slate-400">
+        Nenhum item adicionado.
+      </p>
+    )
   }
 
   return (
     <table className="w-full text-left text-sm">
-      <thead className="border-b border-slate-200 text-xs uppercase text-slate-500">
+      <thead className="border-b border-slate-200 text-xs uppercase text-slate-500 dark:border-slate-800 dark:text-slate-400">
         <tr>
           <th scope="col" className="py-2">
             Produto
@@ -32,14 +36,14 @@ export function CarrinhoTable({ itens, onAtualizarQuantidade, onRemover }: Carri
           <th scope="col" className="py-2" />
         </tr>
       </thead>
-      <tbody className="divide-y divide-slate-100">
+      <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
         {itens.map((item) => (
           <tr key={item.produtoId}>
             <td className="py-2 pr-2">
-              <p className="font-medium text-slate-900">{item.produtoNome}</p>
-              <p className="text-xs text-slate-500">Disponível: {item.estoqueDisponivel}</p>
+              <p className="font-medium text-slate-900 dark:text-slate-100">{item.produtoNome}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Disponível: {item.estoqueDisponivel}</p>
             </td>
-            <td className="py-2 pr-2">
+            <td className="py-2 pr-2 dark:text-slate-300">
               <CurrencyDisplay value={item.precoUnitario} />
             </td>
             <td className="py-2 pr-2">
@@ -53,10 +57,10 @@ export function CarrinhoTable({ itens, onAtualizarQuantidade, onRemover }: Carri
                 max={item.estoqueDisponivel}
                 value={item.quantidade}
                 onChange={(event) => onAtualizarQuantidade(item.produtoId, Number(event.target.value))}
-                className="w-20 rounded-md border border-slate-300 px-2 py-1 text-sm"
+                className="w-20 rounded-md border border-slate-300 px-2 py-1 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
               />
             </td>
-            <td className="py-2 pr-2 font-medium text-slate-900">
+            <td className="py-2 pr-2 font-medium text-slate-900 dark:text-slate-100">
               <CurrencyDisplay value={item.precoUnitario * item.quantidade} />
             </td>
             <td className="py-2 text-right">
@@ -64,7 +68,7 @@ export function CarrinhoTable({ itens, onAtualizarQuantidade, onRemover }: Carri
                 type="button"
                 onClick={() => onRemover(item.produtoId)}
                 aria-label={`Remover ${item.produtoNome}`}
-                className="rounded-md p-1.5 text-red-600 hover:bg-red-50"
+                className="rounded-md p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
               >
                 <Trash2 className="h-4 w-4" aria-hidden="true" />
               </button>

@@ -16,10 +16,10 @@ import { EmptyState } from '../../components/feedback/EmptyState'
 import { CriarProdutoForm, EditarProdutoForm } from '../../components/forms/ProdutoForm'
 import { MovimentarEstoqueForm } from '../../components/forms/MovimentarEstoqueForm'
 import { useDebouncedValue } from '../../hooks/useDebouncedValue'
+import { useToast } from '../../hooks/useToast'
 import { extrairMensagemErro } from '../../utils/error'
 import type { Produto } from '../../types/produto'
 
-const ESTOQUE_BAIXO_LIMITE = 10
 const TAMANHO_PAGINA = 10
 
 type ModalAberto =
@@ -30,13 +30,19 @@ type ModalAberto =
   | { tipo: 'saida'; produto: Produto }
   | null
 
+function badgeEstoque(quantidade: number) {
+  if (quantidade === 0) return <Badge tone="danger">Sem estoque</Badge>
+  if (quantidade <= 5) return <Badge tone="warning">Estoque baixo</Badge>
+  return <Badge tone="success">Em estoque</Badge>
+}
+
 export function ProdutosPage() {
   const [pagina, setPagina] = useState(1)
   const [busca, setBusca] = useState('')
-  const [feedback, setFeedback] = useState<{ tipo: 'sucesso' | 'erro'; mensagem: string } | null>(null)
   const [modal, setModal] = useState<ModalAberto>(null)
   const buscaDebounced = useDebouncedValue(busca)
   const queryClient = useQueryClient()
+  const { exibirSucesso, exibirErro } = useToast()
 
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['produtos', pagina, buscaDebounced],
@@ -48,14 +54,8 @@ export function ProdutosPage() {
     return queryClient.invalidateQueries({ queryKey: ['produtos'] })
   }
 
-  function exibirSucesso(mensagem: string) {
-    setFeedback({ tipo: 'sucesso', mensagem })
-    setModal(null)
-    setTimeout(() => setFeedback(null), 4000)
-  }
-
-  function exibirErro(erro: unknown) {
-    setFeedback({ tipo: 'erro', mensagem: extrairMensagemErro(erro) })
+  function tratarErro(erro: unknown) {
+    exibirErro(extrairMensagemErro(erro))
   }
 
   const criarMutation = useMutation({
@@ -63,9 +63,10 @@ export function ProdutosPage() {
     onSuccess: async () => {
       await invalidarProdutos()
       await queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      setModal(null)
       exibirSucesso('Produto cadastrado com sucesso.')
     },
-    onError: exibirErro,
+    onError: tratarErro,
   })
 
   const atualizarMutation = useMutation({
@@ -73,9 +74,10 @@ export function ProdutosPage() {
       produtosApi.atualizar(id, request),
     onSuccess: async () => {
       await invalidarProdutos()
+      setModal(null)
       exibirSucesso('Produto atualizado com sucesso.')
     },
-    onError: exibirErro,
+    onError: tratarErro,
   })
 
   const excluirMutation = useMutation({
@@ -83,9 +85,10 @@ export function ProdutosPage() {
     onSuccess: async () => {
       await invalidarProdutos()
       await queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      setModal(null)
       exibirSucesso('Produto excluído com sucesso.')
     },
-    onError: exibirErro,
+    onError: tratarErro,
   })
 
   const entradaMutation = useMutation({
@@ -94,9 +97,10 @@ export function ProdutosPage() {
     onSuccess: async () => {
       await invalidarProdutos()
       await queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      setModal(null)
       exibirSucesso('Entrada de estoque registrada.')
     },
-    onError: exibirErro,
+    onError: tratarErro,
   })
 
   const saidaMutation = useMutation({
@@ -105,9 +109,10 @@ export function ProdutosPage() {
     onSuccess: async () => {
       await invalidarProdutos()
       await queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      setModal(null)
       exibirSucesso('Saída de estoque registrada.')
     },
-    onError: exibirErro,
+    onError: tratarErro,
   })
 
   return (
@@ -123,17 +128,6 @@ export function ProdutosPage() {
         }
       />
 
-      {feedback ? (
-        <div
-          role="status"
-          className={`mb-4 rounded-md px-4 py-2.5 text-sm ${
-            feedback.tipo === 'sucesso' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
-          }`}
-        >
-          {feedback.mensagem}
-        </div>
-      ) : null}
-
       <div className="mb-4">
         <SearchInput
           value={busca}
@@ -145,7 +139,7 @@ export function ProdutosPage() {
         />
       </div>
 
-      <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
+      <div className="rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
         {isLoading ? (
           <LoadingSpinner label="Carregando produtos..." />
         ) : isError ? (
@@ -160,7 +154,7 @@ export function ProdutosPage() {
           <>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
-                <thead className="border-b border-slate-200 text-xs uppercase text-slate-500">
+                <thead className="border-b border-slate-200 text-xs uppercase text-slate-500 dark:border-slate-800 dark:text-slate-400">
                   <tr>
                     <th scope="col" className="px-4 py-3">
                       Nome
@@ -176,19 +170,17 @@ export function ProdutosPage() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {data.itens.map((produto) => (
                     <tr key={produto.id}>
-                      <td className="px-4 py-3 font-medium text-slate-900">{produto.nome}</td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 font-medium text-slate-900 dark:text-slate-100">{produto.nome}</td>
+                      <td className="px-4 py-3 dark:text-slate-300">
                         <CurrencyDisplay value={produto.preco} />
                       </td>
                       <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 dark:text-slate-300">
                           <span>{produto.quantidadeEstoque}</span>
-                          {produto.quantidadeEstoque <= ESTOQUE_BAIXO_LIMITE ? (
-                            <Badge tone="warning">Estoque baixo</Badge>
-                          ) : null}
+                          {badgeEstoque(produto.quantidadeEstoque)}
                         </div>
                       </td>
                       <td className="px-4 py-3">
@@ -198,7 +190,7 @@ export function ProdutosPage() {
                             onClick={() => setModal({ tipo: 'entrada', produto })}
                             aria-label={`Entrada de estoque de ${produto.nome}`}
                             title="Entrada de estoque"
-                            className="rounded-md p-1.5 text-emerald-600 hover:bg-emerald-50"
+                            className="rounded-md p-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950"
                           >
                             <ArrowDownToLine className="h-4 w-4" aria-hidden="true" />
                           </button>
@@ -207,7 +199,7 @@ export function ProdutosPage() {
                             onClick={() => setModal({ tipo: 'saida', produto })}
                             aria-label={`Saída de estoque de ${produto.nome}`}
                             title="Saída de estoque"
-                            className="rounded-md p-1.5 text-amber-600 hover:bg-amber-50"
+                            className="rounded-md p-1.5 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950"
                           >
                             <ArrowUpFromLine className="h-4 w-4" aria-hidden="true" />
                           </button>
@@ -216,7 +208,7 @@ export function ProdutosPage() {
                             onClick={() => setModal({ tipo: 'editar', produto })}
                             aria-label={`Editar ${produto.nome}`}
                             title="Editar"
-                            className="rounded-md p-1.5 text-slate-600 hover:bg-slate-100"
+                            className="rounded-md p-1.5 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
                           >
                             <Pencil className="h-4 w-4" aria-hidden="true" />
                           </button>
@@ -225,7 +217,7 @@ export function ProdutosPage() {
                             onClick={() => setModal({ tipo: 'excluir', produto })}
                             aria-label={`Excluir ${produto.nome}`}
                             title="Excluir"
-                            className="rounded-md p-1.5 text-red-600 hover:bg-red-50"
+                            className="rounded-md p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
                           >
                             <Trash2 className="h-4 w-4" aria-hidden="true" />
                           </button>
@@ -241,7 +233,12 @@ export function ProdutosPage() {
         )}
       </div>
 
-      <Modal title="Novo produto" isOpen={modal?.tipo === 'criar'} onClose={() => setModal(null)}>
+      <Modal
+        title="Novo produto"
+        isOpen={modal?.tipo === 'criar'}
+        onClose={() => setModal(null)}
+        preventClose={criarMutation.isPending}
+      >
         <CriarProdutoForm
           isSubmitting={criarMutation.isPending}
           onSubmit={(values) => criarMutation.mutate(values)}
@@ -250,7 +247,7 @@ export function ProdutosPage() {
       </Modal>
 
       {modal?.tipo === 'editar' ? (
-        <Modal title="Editar produto" isOpen onClose={() => setModal(null)}>
+        <Modal title="Editar produto" isOpen onClose={() => setModal(null)} preventClose={atualizarMutation.isPending}>
           <EditarProdutoForm
             produto={modal.produto}
             isSubmitting={atualizarMutation.isPending}
@@ -261,7 +258,12 @@ export function ProdutosPage() {
       ) : null}
 
       {modal?.tipo === 'entrada' ? (
-        <Modal title={`Entrada de estoque — ${modal.produto.nome}`} isOpen onClose={() => setModal(null)}>
+        <Modal
+          title={`Entrada de estoque — ${modal.produto.nome}`}
+          isOpen
+          onClose={() => setModal(null)}
+          preventClose={entradaMutation.isPending}
+        >
           <MovimentarEstoqueForm
             estoqueAtual={modal.produto.quantidadeEstoque}
             isSubmitting={entradaMutation.isPending}
@@ -272,7 +274,12 @@ export function ProdutosPage() {
       ) : null}
 
       {modal?.tipo === 'saida' ? (
-        <Modal title={`Saída de estoque — ${modal.produto.nome}`} isOpen onClose={() => setModal(null)}>
+        <Modal
+          title={`Saída de estoque — ${modal.produto.nome}`}
+          isOpen
+          onClose={() => setModal(null)}
+          preventClose={saidaMutation.isPending}
+        >
           <MovimentarEstoqueForm
             estoqueAtual={modal.produto.quantidadeEstoque}
             isSubmitting={saidaMutation.isPending}

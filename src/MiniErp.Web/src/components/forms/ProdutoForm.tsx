@@ -21,8 +21,8 @@ function FormActions({ isSubmitting, onCancel }: FormActionsProps) {
       <Button variant="secondary" onClick={onCancel} disabled={isSubmitting}>
         Cancelar
       </Button>
-      <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? 'Salvando...' : 'Salvar'}
+      <Button type="submit" isLoading={isSubmitting}>
+        Salvar
       </Button>
     </div>
   )
@@ -42,7 +42,7 @@ export function CriarProdutoForm({ isSubmitting, onSubmit, onCancel }: CriarProd
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-      <Input label="Nome" {...form.register('nome')} error={form.formState.errors.nome?.message} />
+      <Input label="Nome" autoFocus {...form.register('nome')} error={form.formState.errors.nome?.message} />
       <Input
         label="Preço"
         type="number"
@@ -76,7 +76,7 @@ export function EditarProdutoForm({ produto, isSubmitting, onSubmit, onCancel }:
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-      <Input label="Nome" {...form.register('nome')} error={form.formState.errors.nome?.message} />
+      <Input label="Nome" autoFocus {...form.register('nome')} error={form.formState.errors.nome?.message} />
       <Input
         label="Preço"
         type="number"

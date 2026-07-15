@@ -8,6 +8,7 @@ import { ClienteSelector } from './ClienteSelector'
 import { ProdutoSelector } from './ProdutoSelector'
 import { CarrinhoTable } from './CarrinhoTable'
 import { useCarrinho } from '../../hooks/useCarrinho'
+import { useToast } from '../../hooks/useToast'
 import { extrairMensagemErro } from '../../utils/error'
 import { formatarMoeda } from '../../utils/format'
 import type { Cliente } from '../../types/cliente'
@@ -15,9 +16,9 @@ import type { Cliente } from '../../types/cliente'
 export function NovaVenda() {
   const [cliente, setCliente] = useState<Cliente | null>(null)
   const [confirmando, setConfirmando] = useState(false)
-  const [feedback, setFeedback] = useState<{ tipo: 'sucesso' | 'erro'; mensagem: string } | null>(null)
   const carrinho = useCarrinho()
   const queryClient = useQueryClient()
+  const { exibirSucesso, exibirErro } = useToast()
 
   const criarVendaMutation = useMutation({
     mutationFn: vendasApi.criar,
@@ -25,8 +26,7 @@ export function NovaVenda() {
       setConfirmando(false)
       setCliente(null)
       carrinho.limpar()
-      setFeedback({ tipo: 'sucesso', mensagem: 'Venda registrada com sucesso.' })
-      setTimeout(() => setFeedback(null), 4000)
+      exibirSucesso('Venda registrada com sucesso.')
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['vendas'] }),
         queryClient.invalidateQueries({ queryKey: ['produtos'] }),
@@ -35,7 +35,7 @@ export function NovaVenda() {
     },
     onError: (erro) => {
       setConfirmando(false)
-      setFeedback({ tipo: 'erro', mensagem: extrairMensagemErro(erro) })
+      exibirErro(extrairMensagemErro(erro))
     },
   })
 
@@ -51,24 +51,13 @@ export function NovaVenda() {
 
   return (
     <div className="space-y-5">
-      {feedback ? (
-        <div
-          role="status"
-          className={`rounded-md px-4 py-2.5 text-sm ${
-            feedback.tipo === 'sucesso' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
-          }`}
-        >
-          {feedback.mensagem}
-        </div>
-      ) : null}
-
-      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="mb-2 text-sm font-semibold text-slate-900">1. Cliente</h2>
+      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <h2 className="mb-2 text-sm font-semibold text-slate-900 dark:text-slate-100">1. Cliente</h2>
         <ClienteSelector clienteSelecionado={cliente} onSelecionar={setCliente} />
       </div>
 
-      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="mb-2 text-sm font-semibold text-slate-900">2. Itens</h2>
+      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <h2 className="mb-2 text-sm font-semibold text-slate-900 dark:text-slate-100">2. Itens</h2>
         <ProdutoSelector onAdicionar={carrinho.adicionarProduto} />
         <div className="mt-4 overflow-x-auto">
           <CarrinhoTable
@@ -79,10 +68,10 @@ export function NovaVenda() {
         </div>
       </div>
 
-      <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="flex flex-col items-stretch gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between dark:border-slate-800 dark:bg-slate-900">
         <div>
-          <p className="text-sm text-slate-500">Total geral</p>
-          <CurrencyDisplay value={carrinho.total} className="text-2xl font-semibold text-slate-900" />
+          <p className="text-sm text-slate-500 dark:text-slate-400">Total geral</p>
+          <CurrencyDisplay value={carrinho.total} className="text-2xl font-semibold text-slate-900 dark:text-slate-100" />
         </div>
         <Button disabled={!podeFinalizar} onClick={() => setConfirmando(true)}>
           Finalizar venda

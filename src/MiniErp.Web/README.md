@@ -2,6 +2,15 @@
 
 SPA em React + TypeScript para o Mini ERP, consumindo a API ASP.NET Core (`MiniErp.Api`). Sem autenticação nesta versão.
 
+## UX
+
+- Toasts de sucesso/erro (`ToastProvider` + `useToast`) para todas as mutations.
+- Botões com estado de loading (`Button` com prop `isLoading`) e desabilitados durante o envio.
+- Modais com foco automático no primeiro campo, fechamento por ESC/clique fora, e bloqueio de fechamento acidental enquanto uma mutation está pendente (`preventClose`).
+- Badges de estoque em 3 níveis: vermelho (zerado), amarelo (1–5), verde (acima de 5).
+- Tema claro/escuro (`ThemeProvider` + `useTheme`), com botão no cabeçalho e persistência em `localStorage`.
+- Sidebar recolhível em mobile/tablet via menu hambúrguer.
+
 ## Stack
 
 - React 19 + TypeScript
@@ -38,6 +47,17 @@ npm run dev
 
 Acesse `http://localhost:5173`.
 
+## Executando com Docker
+
+Veja a seção "Executando com Docker" no [README raiz do projeto](../../readme.MD#-executando-com-docker). Resumo:
+
+```bash
+# a partir de minierp/
+docker compose up --build
+```
+
+Frontend em `http://localhost:5173`, API em `http://localhost:5192`. O `VITE_API_URL` usado no build da imagem é passado como build arg pelo `docker-compose.yml` — como o Vite resolve variáveis de ambiente em tempo de build, não é possível trocar a URL da API em runtime sem reconstruir a imagem.
+
 ## Scripts
 
 | Comando           | Descrição                              |
@@ -54,12 +74,12 @@ Acesse `http://localhost:5173`.
 src/
 ├── api/            # cliente Axios + módulos por recurso (produtos, clientes, vendas, dashboard)
 ├── components/
-│   ├── layout/     # AppLayout, Sidebar, Header
+│   ├── layout/     # AppLayout, Sidebar, Header, ThemeProvider
 │   ├── ui/         # Button, Input, Modal, ConfirmDialog, Pagination, Badge, ...
-│   ├── feedback/   # LoadingSpinner, Skeleton, ErrorState, EmptyState
+│   ├── feedback/   # LoadingSpinner, Skeleton, ErrorState, EmptyState, ToastProvider
 │   └── forms/      # formulários e seletores específicos de domínio
 ├── pages/          # Dashboard, Produtos, Clientes, Vendas, NotFound
-├── hooks/          # useDebouncedValue, useCarrinho
+├── hooks/          # useDebouncedValue, useCarrinho, useToast, useTheme
 ├── schemas/        # validação Zod dos formulários
 ├── types/          # contratos TypeScript espelhando os DTOs reais da API
 ├── utils/          # formatação pt-BR (moeda/data) e extração de mensagens de erro

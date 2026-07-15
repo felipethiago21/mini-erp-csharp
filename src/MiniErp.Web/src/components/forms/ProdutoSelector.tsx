@@ -24,11 +24,11 @@ export function ProdutoSelector({ onAdicionar }: ProdutoSelectorProps) {
     <div className="relative">
       <SearchInput value={busca} onChange={setBusca} placeholder="Buscar produto para adicionar..." />
       {busca ? (
-        <div className="absolute z-10 mt-1 w-full max-w-sm rounded-md border border-slate-200 bg-white shadow-lg">
+        <div className="absolute z-10 mt-1 w-full max-w-sm rounded-md border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-800">
           {isLoading ? (
-            <p className="px-3 py-2 text-sm text-slate-500">Buscando...</p>
+            <p className="px-3 py-2 text-sm text-slate-500 dark:text-slate-400">Buscando...</p>
           ) : !data || data.itens.length === 0 ? (
-            <p className="px-3 py-2 text-sm text-slate-500">Nenhum produto encontrado.</p>
+            <p className="px-3 py-2 text-sm text-slate-500 dark:text-slate-400">Nenhum produto encontrado.</p>
           ) : (
             <ul className="max-h-64 overflow-y-auto">
               {data.itens.map((produto) => (
@@ -37,13 +37,13 @@ export function ProdutoSelector({ onAdicionar }: ProdutoSelectorProps) {
                     type="button"
                     disabled={produto.quantidadeEstoque <= 0}
                     onClick={() => onAdicionar(produto)}
-                    className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 dark:hover:bg-slate-700"
                   >
                     <div>
-                      <p className="font-medium text-slate-900">{produto.nome}</p>
-                      <p className="text-slate-500">Estoque: {produto.quantidadeEstoque}</p>
+                      <p className="font-medium text-slate-900 dark:text-slate-100">{produto.nome}</p>
+                      <p className="text-slate-500 dark:text-slate-400">Estoque: {produto.quantidadeEstoque}</p>
                     </div>
-                    <CurrencyDisplay value={produto.preco} className="font-medium text-slate-700" />
+                    <CurrencyDisplay value={produto.preco} className="font-medium text-slate-700 dark:text-slate-300" />
                   </button>
                 </li>
               ))}

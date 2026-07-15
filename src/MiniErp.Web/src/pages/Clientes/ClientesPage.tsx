@@ -13,6 +13,7 @@ import { ErrorState } from '../../components/feedback/ErrorState'
 import { EmptyState } from '../../components/feedback/EmptyState'
 import { ClienteForm } from '../../components/forms/ClienteForm'
 import { useDebouncedValue } from '../../hooks/useDebouncedValue'
+import { useToast } from '../../hooks/useToast'
 import { extrairMensagemErro } from '../../utils/error'
 import type { Cliente } from '../../types/cliente'
 
@@ -23,10 +24,10 @@ type ModalAberto = { tipo: 'criar' } | { tipo: 'editar'; cliente: Cliente } | { 
 export function ClientesPage() {
   const [pagina, setPagina] = useState(1)
   const [busca, setBusca] = useState('')
-  const [feedback, setFeedback] = useState<{ tipo: 'sucesso' | 'erro'; mensagem: string } | null>(null)
   const [modal, setModal] = useState<ModalAberto>(null)
   const buscaDebounced = useDebouncedValue(busca)
   const queryClient = useQueryClient()
+  const { exibirSucesso, exibirErro } = useToast()
 
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['clientes', pagina, buscaDebounced],
@@ -38,14 +39,8 @@ export function ClientesPage() {
     return queryClient.invalidateQueries({ queryKey: ['clientes'] })
   }
 
-  function exibirSucesso(mensagem: string) {
-    setFeedback({ tipo: 'sucesso', mensagem })
-    setModal(null)
-    setTimeout(() => setFeedback(null), 4000)
-  }
-
-  function exibirErro(erro: unknown) {
-    setFeedback({ tipo: 'erro', mensagem: extrairMensagemErro(erro) })
+  function tratarErro(erro: unknown) {
+    exibirErro(extrairMensagemErro(erro))
   }
 
   const criarMutation = useMutation({
@@ -53,9 +48,10 @@ export function ClientesPage() {
     onSuccess: async () => {
       await invalidarClientes()
       await queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      setModal(null)
       exibirSucesso('Cliente cadastrado com sucesso.')
     },
-    onError: exibirErro,
+    onError: tratarErro,
   })
 
   const atualizarMutation = useMutation({
@@ -63,9 +59,10 @@ export function ClientesPage() {
       clientesApi.atualizar(id, request),
     onSuccess: async () => {
       await invalidarClientes()
+      setModal(null)
       exibirSucesso('Cliente atualizado com sucesso.')
     },
-    onError: exibirErro,
+    onError: tratarErro,
   })
 
   const excluirMutation = useMutation({
@@ -73,9 +70,10 @@ export function ClientesPage() {
     onSuccess: async () => {
       await invalidarClientes()
       await queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      setModal(null)
       exibirSucesso('Cliente excluído com sucesso.')
     },
-    onError: exibirErro,
+    onError: tratarErro,
   })
 
   return (
@@ -91,17 +89,6 @@ export function ClientesPage() {
         }
       />
 
-      {feedback ? (
-        <div
-          role="status"
-          className={`mb-4 rounded-md px-4 py-2.5 text-sm ${
-            feedback.tipo === 'sucesso' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
-          }`}
-        >
-          {feedback.mensagem}
-        </div>
-      ) : null}
-
       <div className="mb-4">
         <SearchInput
           value={busca}
@@ -113,7 +100,7 @@ export function ClientesPage() {
         />
       </div>
 
-      <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
+      <div className="rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
         {isLoading ? (
           <LoadingSpinner label="Carregando clientes..." />
         ) : isError ? (
@@ -128,7 +115,7 @@ export function ClientesPage() {
           <>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
-                <thead className="border-b border-slate-200 text-xs uppercase text-slate-500">
+                <thead className="border-b border-slate-200 text-xs uppercase text-slate-500 dark:border-slate-800 dark:text-slate-400">
                   <tr>
                     <th scope="col" className="px-4 py-3">
                       Nome
@@ -141,11 +128,11 @@ export function ClientesPage() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {data.itens.map((cliente) => (
                     <tr key={cliente.id}>
-                      <td className="px-4 py-3 font-medium text-slate-900">{cliente.nome}</td>
-                      <td className="px-4 py-3">{cliente.email}</td>
+                      <td className="px-4 py-3 font-medium text-slate-900 dark:text-slate-100">{cliente.nome}</td>
+                      <td className="px-4 py-3 dark:text-slate-300">{cliente.email}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-1">
                           <button
@@ -153,7 +140,7 @@ export function ClientesPage() {
                             onClick={() => setModal({ tipo: 'editar', cliente })}
                             aria-label={`Editar ${cliente.nome}`}
                             title="Editar"
-                            className="rounded-md p-1.5 text-slate-600 hover:bg-slate-100"
+                            className="rounded-md p-1.5 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
                           >
                             <Pencil className="h-4 w-4" aria-hidden="true" />
                           </button>
@@ -162,7 +149,7 @@ export function ClientesPage() {
                             onClick={() => setModal({ tipo: 'excluir', cliente })}
                             aria-label={`Excluir ${cliente.nome}`}
                             title="Excluir"
-                            className="rounded-md p-1.5 text-red-600 hover:bg-red-50"
+                            className="rounded-md p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
                           >
                             <Trash2 className="h-4 w-4" aria-hidden="true" />
                           </button>
@@ -178,7 +165,12 @@ export function ClientesPage() {
         )}
       </div>
 
-      <Modal title="Novo cliente" isOpen={modal?.tipo === 'criar'} onClose={() => setModal(null)}>
+      <Modal
+        title="Novo cliente"
+        isOpen={modal?.tipo === 'criar'}
+        onClose={() => setModal(null)}
+        preventClose={criarMutation.isPending}
+      >
         <ClienteForm
           isSubmitting={criarMutation.isPending}
           onSubmit={(values) => criarMutation.mutate(values)}
@@ -187,7 +179,7 @@ export function ClientesPage() {
       </Modal>
 
       {modal?.tipo === 'editar' ? (
-        <Modal title="Editar cliente" isOpen onClose={() => setModal(null)}>
+        <Modal title="Editar cliente" isOpen onClose={() => setModal(null)} preventClose={atualizarMutation.isPending}>
           <ClienteForm
             cliente={modal.cliente}
             isSubmitting={atualizarMutation.isPending}

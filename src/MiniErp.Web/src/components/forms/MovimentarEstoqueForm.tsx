@@ -18,10 +18,11 @@ export function MovimentarEstoqueForm({ estoqueAtual, isSubmitting, onSubmit, on
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-      <p className="text-sm text-slate-500">Estoque atual: {estoqueAtual}</p>
+      <p className="text-sm text-slate-500 dark:text-slate-400">Estoque atual: {estoqueAtual}</p>
       <Input
         label="Quantidade"
         type="number"
+        autoFocus
         {...form.register('quantidade', { valueAsNumber: true })}
         error={form.formState.errors.quantidade?.message}
       />
@@ -29,8 +30,8 @@ export function MovimentarEstoqueForm({ estoqueAtual, isSubmitting, onSubmit, on
         <Button variant="secondary" onClick={onCancel} disabled={isSubmitting}>
           Cancelar
         </Button>
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Salvando...' : 'Confirmar'}
+        <Button type="submit" isLoading={isSubmitting}>
+          Confirmar
         </Button>
       </div>
     </form>

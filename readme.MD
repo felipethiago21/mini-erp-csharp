@@ -71,7 +71,9 @@ graph TD
 
 ```
 minierp/
-├── MiniErp.sln
+├── MiniErp.slnx
+├── docker-compose.yml
+├── .dockerignore
 ├── src/
 │   ├── MiniErp.Domain/
 │   │   └── Entities/            (Produto, Cliente, Venda, ItemVenda)
@@ -88,19 +90,23 @@ minierp/
 │   ├── MiniErp.Api/
 │   │   ├── Controllers/
 │   │   ├── Middlewares/
+│   │   ├── Dockerfile
 │   │   └── Program.cs
 │   ├── MiniErp.Console/
 │   └── MiniErp.Web/              (SPA React + TypeScript)
 │       ├── .env.example
+│       ├── Dockerfile
+│       ├── nginx.conf
+│       ├── .dockerignore
 │       ├── src/
 │       │   ├── api/              (client.ts, produtosApi, clientesApi, vendasApi, dashboardApi)
 │       │   ├── components/
-│       │   │   ├── layout/       (AppLayout, Sidebar, Header)
+│       │   │   ├── layout/       (AppLayout, Sidebar, Header, ThemeProvider)
 │       │   │   ├── ui/           (Button, Input, Modal, ConfirmDialog, Pagination, ...)
-│       │   │   ├── feedback/     (LoadingSpinner, Skeleton, ErrorState, EmptyState)
+│       │   │   ├── feedback/     (LoadingSpinner, Skeleton, ErrorState, EmptyState, ToastProvider)
 │       │   │   └── forms/        (ProdutoForm, ClienteForm, NovaVenda, ...)
 │       │   ├── pages/            (Dashboard, Produtos, Clientes, Vendas, NotFound)
-│       │   ├── hooks/
+│       │   ├── hooks/            (useDebouncedValue, useCarrinho, useToast, useTheme)
 │       │   ├── schemas/          (validação Zod)
 │       │   ├── types/            (contratos TypeScript espelhando os DTOs da API)
 │       │   ├── utils/            (formatação pt-BR, extração de erros)
@@ -134,6 +140,8 @@ dotnet test
 ```bash
 dotnet ef database update --project src/MiniErp.Infrastructure --startup-project src/MiniErp.Api
 ```
+
+> Este passo é opcional a partir de agora: `Program.cs` aplica `context.Database.Migrate()` automaticamente ao iniciar a API (adicionado para viabilizar `docker compose up --build` sem passo manual). Rodar `dotnet ef database update` manualmente continua funcionando e é útil para inspecionar/gerar migrations.
 
 ### Executar a API
 
@@ -191,9 +199,17 @@ A aplicação abre em `http://localhost:5173` (origem já liberada no CORS da AP
 ### Telas implementadas
 
 - **Dashboard** — cards de totais (produtos, clientes, vendas, faturamento, estoque baixo), gráfico de produtos com menor estoque (Recharts), lista de vendas recentes, com loading skeleton, estado de erro (com "tentar novamente") e estado vazio.
-- **Produtos** — tabela paginada com busca (debounce), cadastro, edição, exclusão (com confirmação), entrada/saída de estoque, destaque visual para estoque baixo.
+- **Produtos** — tabela paginada com busca (debounce), cadastro, edição, exclusão (com confirmação), entrada/saída de estoque, badges de estoque em 3 níveis (zerado, baixo, normal).
 - **Clientes** — tabela paginada com busca, cadastro, edição e exclusão via modal.
 - **Vendas** — aba de histórico (lista + detalhe de itens) e aba de nova venda (seleção de cliente e produtos, carrinho com quantidades, validação de estoque no frontend, confirmação antes de finalizar).
+
+### UX
+
+- Notificações toast de sucesso/erro para todas as mutations (produtos, estoque, clientes, vendas).
+- Botões exibem spinner e ficam desabilitados durante o envio; modais impedem fechamento acidental (clique fora/ESC) enquanto uma mutation está em andamento.
+- Foco automático no primeiro campo ao abrir um formulário em modal; erros de validação (Zod) exibidos abaixo de cada campo.
+- Tema claro/escuro com botão no cabeçalho, preferência persistida em `localStorage` (`minierp-theme`).
+- Sidebar recolhível em telas mobile/tablet (menu hambúrguer + drawer).
 
 ### Comandos do frontend
 
@@ -208,6 +224,62 @@ npm run preview   # preview do build de produção
 ### Screenshots
 
 _Pendente — adicionar capturas de tela das telas de Dashboard, Produtos, Clientes e Vendas._
+
+---
+
+## 🐳 Executando com Docker
+
+API e frontend também podem ser executados via Docker Compose, sem precisar instalar .NET SDK ou Node localmente.
+
+### Pré-requisito
+
+Docker e Docker Compose instalados (Docker Desktop no Windows/Mac).
+
+### Subir os containers
+
+A partir da raiz do projeto (`minierp/`):
+
+```bash
+docker compose up --build
+```
+
+Isso constrói duas imagens e sobe dois containers:
+
+- **`minierp-api`** — API ASP.NET Core publicada em modo Release, escutando na porta interna `8080`.
+- **`minierp-web`** — build de produção do frontend (Vite) servido por Nginx na porta interna `80`.
+
+### Portas
+
+| Serviço | URL no host              | Porta interna do container |
+| ------- | -------------------------- | --------------------------- |
+| API     | `http://localhost:5192`    | `8080`                       |
+| Web     | `http://localhost:5173`    | `80`                         |
+
+O frontend é compilado no build da imagem já apontando para `http://localhost:5192/api` (variável `VITE_API_URL`, injetada como build arg no `docker-compose.yml`) — como o Vite resolve `import.meta.env` em tempo de build, essa URL fica fixa no bundle estático servido pelo Nginx.
+
+### Persistência do banco SQLite
+
+O container da API monta um volume nomeado do Docker (`minierp-db`) em `/app/data`, e a connection string aponta para `/app/data/minierp.db` dentro desse volume. Isso significa que o banco **sobrevive** a `docker compose down` e a recriações do container — só é apagado com `docker compose down -v`.
+
+Ao iniciar, a API aplica automaticamente as migrations pendentes (`context.Database.Migrate()` em `Program.cs`), então não é necessário rodar `dotnet ef database update` manualmente no fluxo Docker.
+
+### Parar os containers
+
+```bash
+docker compose down
+```
+
+Para também remover o volume do banco (apaga os dados persistidos):
+
+```bash
+docker compose down -v
+```
+
+### Validar a configuração sem subir os containers
+
+```bash
+docker compose config
+```
 
 ---
 

@@ -1,0 +1,32 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: src/MiniErp.Api/Dockerfile
+    container_name: minierp-api
+    ports:
+      - "5192:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: "Data Source=/app/data/minierp.db"
+      Cors__AllowedOrigins__0: "http://localhost:5173"
+    volumes:
+      - minierp-db:/app/data
+    restart: unless-stopped
+
+  web:
+    build:
+      context: src/MiniErp.Web
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:5192/api
+    container_name: minierp-web
+    ports:
+      - "5173:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  minierp-db:

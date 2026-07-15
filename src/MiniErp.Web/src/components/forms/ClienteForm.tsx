@@ -20,14 +20,14 @@ export function ClienteForm({ cliente, isSubmitting, onSubmit, onCancel }: Clien
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-      <Input label="Nome" {...form.register('nome')} error={form.formState.errors.nome?.message} />
+      <Input label="Nome" autoFocus {...form.register('nome')} error={form.formState.errors.nome?.message} />
       <Input label="E-mail" type="email" {...form.register('email')} error={form.formState.errors.email?.message} />
       <div className="flex justify-end gap-2 pt-2">
         <Button variant="secondary" onClick={onCancel} disabled={isSubmitting}>
           Cancelar
         </Button>
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Salvando...' : 'Salvar'}
+        <Button type="submit" isLoading={isSubmitting}>
+          Salvar
         </Button>
       </div>
     </form>

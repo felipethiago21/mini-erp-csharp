@@ -27,10 +27,10 @@ export function HistoricoVendas() {
   const vendasOrdenadas = [...data].sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime())
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
+    <div className="rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
-          <thead className="border-b border-slate-200 text-xs uppercase text-slate-500">
+          <thead className="border-b border-slate-200 text-xs uppercase text-slate-500 dark:border-slate-800 dark:text-slate-400">
             <tr>
               <th scope="col" className="px-4 py-3">
                 ID
@@ -50,13 +50,13 @@ export function HistoricoVendas() {
               <th scope="col" className="px-4 py-3" />
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
             {vendasOrdenadas.map((venda) => (
               <tr key={venda.id}>
-                <td className="px-4 py-3 text-slate-500">#{venda.id}</td>
-                <td className="px-4 py-3 font-medium text-slate-900">{venda.clienteNome}</td>
-                <td className="px-4 py-3">{formatarDataHora(venda.data)}</td>
-                <td className="px-4 py-3">{venda.itens.length}</td>
+                <td className="px-4 py-3 text-slate-500 dark:text-slate-400">#{venda.id}</td>
+                <td className="px-4 py-3 font-medium text-slate-900 dark:text-slate-100">{venda.clienteNome}</td>
+                <td className="px-4 py-3 dark:text-slate-300">{formatarDataHora(venda.data)}</td>
+                <td className="px-4 py-3 dark:text-slate-300">{venda.itens.length}</td>
                 <td className="px-4 py-3 font-medium">
                   <CurrencyDisplay value={venda.total} />
                 </td>
@@ -64,7 +64,7 @@ export function HistoricoVendas() {
                   <button
                     type="button"
                     onClick={() => setVendaSelecionada(venda)}
-                    className="text-sm font-medium text-slate-600 underline-offset-2 hover:underline"
+                    className="text-sm font-medium text-slate-600 underline-offset-2 hover:underline dark:text-slate-300"
                   >
                     Detalhes
                   </button>
@@ -77,15 +77,16 @@ export function HistoricoVendas() {
 
       {vendaSelecionada ? (
         <Modal title={`Venda #${vendaSelecionada.id}`} isOpen onClose={() => setVendaSelecionada(null)}>
-          <div className="space-y-3 text-sm">
+          <div className="space-y-3 text-sm dark:text-slate-300">
             <p>
-              <span className="font-medium text-slate-900">Cliente:</span> {vendaSelecionada.clienteNome}
+              <span className="font-medium text-slate-900 dark:text-slate-100">Cliente:</span> {vendaSelecionada.clienteNome}
             </p>
             <p>
-              <span className="font-medium text-slate-900">Data:</span> {formatarDataHora(vendaSelecionada.data)}
+              <span className="font-medium text-slate-900 dark:text-slate-100">Data:</span>{' '}
+              {formatarDataHora(vendaSelecionada.data)}
             </p>
             <table className="w-full text-left">
-              <thead className="border-b border-slate-200 text-xs uppercase text-slate-500">
+              <thead className="border-b border-slate-200 text-xs uppercase text-slate-500 dark:border-slate-700 dark:text-slate-400">
                 <tr>
                   <th scope="col" className="py-2">
                     Produto
@@ -101,7 +102,7 @@ export function HistoricoVendas() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {vendaSelecionada.itens.map((item) => (
                   <tr key={item.produtoId}>
                     <td className="py-2">{item.produtoNome}</td>
@@ -116,7 +117,7 @@ export function HistoricoVendas() {
                 ))}
               </tbody>
             </table>
-            <p className="flex justify-end gap-2 pt-2 text-base font-semibold text-slate-900">
+            <p className="flex justify-end gap-2 pt-2 text-base font-semibold text-slate-900 dark:text-slate-100">
               Total: <CurrencyDisplay value={vendaSelecionada.total} />
             </p>
           </div>

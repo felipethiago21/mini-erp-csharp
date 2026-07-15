@@ -1,9 +1,11 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using MiniErp.Api.Middlewares;
 using MiniErp.Application.Validators;
 using MiniErp.Infrastructure;
+using MiniErp.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +42,15 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+// Aplica migrations pendentes automaticamente ao iniciar. Necessário para o cenário
+// Docker (docker compose up --build), onde não há passo manual de `dotnet ef database
+// update` antes de subir o container. Não altera contratos nem regras de negócio.
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<MiniErpContext>();
+    context.Database.Migrate();
+}
 
 app.UseSwagger();
 app.UseSwaggerUI(options =>

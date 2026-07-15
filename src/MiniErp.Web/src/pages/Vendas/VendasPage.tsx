@@ -12,14 +12,16 @@ export function VendasPage() {
     <div>
       <PageHeader title="Vendas" description="Histórico de vendas e registro de novas vendas" />
 
-      <div className="mb-5 flex gap-1 border-b border-slate-200" role="tablist">
+      <div className="mb-5 flex gap-1 border-b border-slate-200 dark:border-slate-800" role="tablist">
         <button
           type="button"
           role="tab"
           aria-selected={aba === 'historico'}
           onClick={() => setAba('historico')}
           className={`px-4 py-2 text-sm font-medium ${
-            aba === 'historico' ? 'border-b-2 border-slate-900 text-slate-900' : 'text-slate-500 hover:text-slate-700'
+            aba === 'historico'
+              ? 'border-b-2 border-slate-900 text-slate-900 dark:border-slate-100 dark:text-slate-100'
+              : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
           }`}
         >
           Histórico
@@ -30,7 +32,9 @@ export function VendasPage() {
           aria-selected={aba === 'nova'}
           onClick={() => setAba('nova')}
           className={`px-4 py-2 text-sm font-medium ${
-            aba === 'nova' ? 'border-b-2 border-slate-900 text-slate-900' : 'text-slate-500 hover:text-slate-700'
+            aba === 'nova'
+              ? 'border-b-2 border-slate-900 text-slate-900 dark:border-slate-100 dark:text-slate-100'
+              : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
           }`}
         >
           Nova venda
